@@ -1,28 +1,35 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// TODO
-var sqlEdge = builder
-    .AddContainer("sqledge", "mcr.microsoft.com/azure-sql-edge")
-    .WithEnvironment("ACCEPT_EULA", "Y")
-    .WithEnvironment("MSSQL_SA_PASSWORD", "sa");
+// TODO reinstate with correct connectionstring
+// var mssqlInstance = builder
+//     .AddContainer("mssql", "mcr.microsoft.com/mssql/server:2022-latest", "")
+//     .WithEnvironment("ACCEPT_EULA", "Y")
+//     .WithEnvironment("MSSQL_SA_PASSWORD", "temporarily-secure-password-!123");
 
-var serviceBusInstance = builder
-    .AddContainer("servicebus", "mcr.microsoft.com/azure-messaging/servicebus-emulator")
-    .WithEnvironment("ACCEPT_EULA", "Y")
-    .WithEnvironment("SQL_SERVER", sqlEdge.Resource.Name)
-    .WithEnvironment("MSSQL_SA_PASSWORD", "sa")
-    .WithBindMount(
-        "servicebus.emulator.config.json",
-        "/ServiceBus_Emulator/ConfigFiles/Config.json"
-    );
+// var serviceBusInstance = builder
+//     .AddContainer("servicebus", "mcr.microsoft.com/azure-messaging/servicebus-emulator")
+//     .WithEnvironment("ACCEPT_EULA", "Y")
+//     .WithEnvironment("SQL_SERVER", mssqlInstance.Resource.Name)
+//     .WithEnvironment("MSSQL_SA_PASSWORD", "temporarily-secure-password-!123")
+//     .WithBindMount(
+//         "servicebus.emulator.config.json",
+//         "/ServiceBus_Emulator/ConfigFiles/Config.json"
+//     )
+//     .WithContainerName("servicebus")
+//     .WithEndpoint(
+//         "servicebus",
+//         (endpoint) =>
+//         {
+//             endpoint.Name = "servicebus";
+//             endpoint.Port = 5672;
+//             endpoint.TargetPort = 5672;
+//         }
+//     )
+//     .WaitFor(mssqlInstance);
 
-var premiumCalcProxy = builder
-    .AddProject<Projects.Arnold_PremiumCalcProxy>("premiumcalcproxy")
-    .WithExternalHttpEndpoints();
+var premiumCalcProxy = builder.AddProject<Projects.Arnold_PremiumCalcProxy>("premiumcalcproxy");
 
-var serviceBus = builder.ExecutionContext.IsPublishMode
-    ? builder.AddAzureServiceBus("messaging")
-    : builder.AddConnectionString("messaging");
+var serviceBus = builder.AddConnectionString("messaging");
 
 var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Session);
 

@@ -50,6 +50,17 @@ public class Worker : BackgroundService
                     break;
             }
         };
+
+        serviceBusProcessor.ProcessErrorAsync += args =>
+        {
+            logger.LogError(
+                args.Exception,
+                "Error processing message: {ExceptionMessage}",
+                args.Exception.Message
+            );
+
+            return Task.CompletedTask;
+        };
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
