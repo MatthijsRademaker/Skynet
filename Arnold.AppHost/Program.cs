@@ -1,5 +1,21 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
+// TODO
+var sqlEdge = builder
+    .AddContainer("sqledge", "mcr.microsoft.com/azure-sql-edge")
+    .WithEnvironment("ACCEPT_EULA", "Y")
+    .WithEnvironment("MSSQL_SA_PASSWORD", "sa");
+
+var serviceBusInstance = builder
+    .AddContainer("servicebus", "mcr.microsoft.com/azure-messaging/servicebus-emulator")
+    .WithEnvironment("ACCEPT_EULA", "Y")
+    .WithEnvironment("SQL_SERVER", sqlEdge.Resource.Name)
+    .WithEnvironment("MSSQL_SA_PASSWORD", "sa")
+    .WithBindMount(
+        "servicebus.emulator.config.json",
+        "/ServiceBus_Emulator/ConfigFiles/Config.json"
+    );
+
 var premiumCalcProxy = builder
     .AddProject<Projects.Arnold_PremiumCalcProxy>("premiumcalcproxy")
     .WithExternalHttpEndpoints();
