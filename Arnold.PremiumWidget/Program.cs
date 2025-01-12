@@ -28,17 +28,14 @@ app.MapPost(
     {
         var sender = client.CreateSender("customer");
 
-        var customer = new CreateCustomerCommand
+        var command = new CreateCustomerCommand
         {
             Name = "Arnold",
             Email = "arnold@terminator.com",
+            Version = 1,
         };
 
-        var json = JsonSerializer.Serialize(customer);
-
-        var message = new ServiceBusMessage(json);
-
-        await sender.SendMessageAsync(message);
+        await sender.SendMessageAsync(command.ToServiceBusMessage());
     }
 );
 

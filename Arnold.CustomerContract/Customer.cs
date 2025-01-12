@@ -1,33 +1,43 @@
-﻿namespace Arnold.CustomerContract;
+﻿using System.Reflection;
+using System.Text.Json;
+using Azure.Messaging.ServiceBus;
 
-public class Customer
+namespace Arnold.CustomerContract;
+
+public static class CommandsExtenstions
 {
-    public Guid Id { get; set; }
-    public required string Name { get; set; }
+    public static ServiceBusMessage ToServiceBusMessage(this BaseCommand command)
+    {
+        var json = JsonSerializer.Serialize(command);
+        var message = new ServiceBusMessage(json) { Subject = command.GetType().Name };
+        return message;
+    }
 
-    public required string Email { get; set; }
+    public static string GetCommandName(this ServiceBusReceivedMessage message)
+    {
+        return message.Subject;
+    }
 
-    public Premium? Premium { get; set; }
-
-    public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset UpdatedAt { get; set; }
-
-    public string Address { get; set; }
+    public static T ToCommand<T>(this ServiceBusReceivedMessage message)
+    {
+        var json = message.Body.ToString();
+        return JsonSerializer.Deserialize<T>(json);
+    }
 }
 
-public class CreateCustomerCommand
+public abstract class BaseCommand
+{
+    public required int Version { get; set; }
+};
+
+public class CreateCustomerCommand : BaseCommand
 {
     public required string Name { get; set; }
     public required string Email { get; set; }
 }
 
-public class UpdateAddressCommand
+public class UpdateAddressCommand : BaseCommand
 {
     public required Guid Id { get; set; }
     public required string Address { get; set; }
-}
-
-public class Premium
-{
-    public decimal Amount { get; set; }
 }

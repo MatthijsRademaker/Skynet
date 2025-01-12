@@ -28,18 +28,14 @@ app.MapPost(
     async (ServiceBusClient client) =>
     {
         var sender = client.CreateSender("customer");
-        // TODO add message type as wrapper
-        var customer = new CreateCustomerCommand
+        var command = new CreateCustomerCommand
         {
             Name = "Arnold",
             Email = "arnold@terminator.com",
+            Version = 1,
         };
 
-        var json = JsonSerializer.Serialize(customer);
-
-        var message = new ServiceBusMessage(json);
-
-        await sender.SendMessageAsync(message);
+        await sender.SendMessageAsync(command.ToServiceBusMessage());
     }
 );
 
@@ -48,14 +44,14 @@ app.MapPatch(
     async (ServiceBusClient client, Guid Id) =>
     {
         var sender = client.CreateSender("customer");
-        // TODO add message type as wrapper
-        var customer = new UpdateAddressCommand() { Id = Id, Address = "1234 Elm St" }; // TODO add more properties
+        var command = new UpdateAddressCommand()
+        {
+            Id = Id,
+            Address = "1234 Elm St",
+            Version = 1,
+        }; // TODO add more properties
 
-        var json = JsonSerializer.Serialize(customer);
-
-        var message = new ServiceBusMessage(json);
-
-        await sender.SendMessageAsync(message);
+        await sender.SendMessageAsync(command.ToServiceBusMessage());
     }
 );
 

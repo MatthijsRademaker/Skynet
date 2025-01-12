@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Arnold.SkyNet.Migrations
 {
-    [DbContext(typeof(SkyNetDbContext))]
+    [DbContext(typeof(SkyNetContext))]
     [Migration("20250110185229_Init")]
     partial class Init
     {

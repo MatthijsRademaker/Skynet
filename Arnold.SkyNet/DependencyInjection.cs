@@ -1,4 +1,7 @@
 using Arnold.CustomerContract;
+using Arnold.SkyNet.Domain;
+using Arnold.SkyNet.DomainEvents;
+using Arnold.SkyNet.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Arnold.SkyNet;
@@ -7,7 +10,7 @@ public static class DependencyInjection
 {
     public static void AddSkyNet(this IHostApplicationBuilder builder)
     {
-        builder.AddNpgsqlDbContext<SkyNetDbContext>(
+        builder.AddNpgsqlDbContext<SkyNetContext>(
             "skyNetDb",
             configureDbContextOptions: dbContextOptionsBuilder =>
             {
@@ -18,5 +21,14 @@ public static class DependencyInjection
                 });
             }
         );
+
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly)
+        );
+
+        builder.AddAzureServiceBusClient("messaging");
+        builder.Services.AddHostedService<Worker>();
+        builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddScoped<IEventStore, EventStore>();
     }
 }
