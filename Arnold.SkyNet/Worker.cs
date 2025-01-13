@@ -11,22 +11,26 @@ public class Worker : BackgroundService
     private readonly ServiceBusProcessor serviceBusProcessor;
     private readonly ILogger<Worker> logger;
     private readonly ServiceBusClient serviceBusClient;
-    private readonly IMediator mediator;
 
-    public Worker(ILogger<Worker> logger, ServiceBusClient serviceBusClient, IMediator mediator)
+    public Worker(
+        ILogger<Worker> logger,
+        ServiceBusClient serviceBusClient,
+        IServiceScopeFactory serviceScopeFactory
+    )
     {
         this.logger = logger;
         this.serviceBusClient = serviceBusClient;
-        this.mediator = mediator;
         serviceBusProcessor = serviceBusClient.CreateProcessor("customer");
 
         serviceBusProcessor.ProcessMessageAsync += async args =>
         {
+            using var scope = serviceScopeFactory.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
             switch (args.Message.GetCommandName())
             {
                 // TODO Versioning
                 case nameof(CreateCustomerCommand):
-                    await mediator.Send(
+                    await mediator.Publish(
                         new CreateCustomerCommandRequest(
                             args.Message.ToCommand<CreateCustomerCommand>()
                         ),
@@ -35,7 +39,7 @@ public class Worker : BackgroundService
                     break;
 
                 case nameof(UpdateAddressCommand):
-                    await mediator.Send(
+                    await mediator.Publish(
                         // TODO wrap in a request
                         args.Message.ToCommand<UpdateAddressCommand>(),
                         args.CancellationToken

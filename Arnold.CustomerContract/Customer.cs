@@ -6,7 +6,8 @@ namespace Arnold.CustomerContract;
 
 public static class CommandsExtenstions
 {
-    public static ServiceBusMessage ToServiceBusMessage(this BaseCommand command)
+    public static ServiceBusMessage ToServiceBusMessage<T>(this T command)
+        where T : BaseCommand
     {
         var json = JsonSerializer.Serialize(command);
         var message = new ServiceBusMessage(json) { Subject = command.GetType().Name };

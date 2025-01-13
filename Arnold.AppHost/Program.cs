@@ -38,17 +38,20 @@ builder
     .AddProject<Projects.Arnold_PaycheckProtector>("paycheckprotector")
     .WithReference(premiumCalcProxy)
     .WithReference(serviceBus)
-    .WithReference(skynetDb);
+    .WithReference(skynetDb)
+    .WaitFor(serviceBusInstance);
 
 builder
     .AddProject<Projects.Arnold_PremiumWidget>("premiumwidget")
     .WithReference(premiumCalcProxy)
-    .WithReference(serviceBus);
+    .WithReference(serviceBus)
+    .WaitFor(serviceBusInstance);
 
 builder
     .AddProject<Projects.Arnold_SkyNet>("skynet")
     .WithReference(serviceBus)
-    .WithReference(skynetDb);
+    .WithReference(skynetDb)
+    .WaitFor(serviceBusInstance);
 
 // TODO add KnowledgeTest project
 
