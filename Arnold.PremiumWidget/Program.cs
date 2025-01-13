@@ -24,12 +24,9 @@ app.MapGet(
 
 app.MapPost(
     "/callMeBack",
-    async () =>
+    async (ServiceBusClient client) =>
     {
-        var client = new ServiceBusClient(
-            "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;"
-        );
-        var sender = client.CreateSender("queue.1");
+        var sender = client.CreateSender("customer");
 
         var command = new CreateCustomerCommand
         {
