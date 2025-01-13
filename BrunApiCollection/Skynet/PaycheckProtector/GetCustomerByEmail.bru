@@ -1,0 +1,15 @@
+meta {
+  name: GetCustomerByEmail
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{PaycheckProtectorUrl}}/customer?email=test2@terminator.com
+  body: none
+  auth: none
+}
+
+params:query {
+  email: test2@terminator.com
+}

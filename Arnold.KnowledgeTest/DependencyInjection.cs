@@ -5,11 +5,11 @@ using Arnold.SkyNet.DomainEvents;
 using Arnold.SkyNet.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
-namespace Arnold.SkyNet;
+namespace Arnold.KnowledgeTest;
 
 public static class DependencyInjection
 {
-    public static void AddSkyNet(this IHostApplicationBuilder builder)
+    public static void AddKnowledgeTest(this IHostApplicationBuilder builder)
     {
         builder.AddNpgsqlDbContext<SkyNetContext>(
             "skynetdb",
@@ -18,17 +18,11 @@ public static class DependencyInjection
                 dbContextOptionsBuilder.UseNpgsql(builder =>
                 {
                     builder.EnableRetryOnFailure();
-                    builder.MigrationsAssembly("Arnold.SkyNet");
                 });
             }
         );
 
-        builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly)
-        );
-
         builder.AddAzureServiceBusClient("messaging");
-        builder.Services.AddHostedService<Worker>();
         builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
         builder.Services.AddScoped<IEventStore, EventStore>();
     }

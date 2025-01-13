@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arnold.CustomerContract", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arnold.SkyNet", "Arnold.SkyNet\Arnold.SkyNet.csproj", "{2F0EEBE1-4DD4-493D-B9D2-8F76433C02D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arnold.KnowledgeTest", "Arnold.KnowledgeTest\Arnold.KnowledgeTest.csproj", "{669DDEFF-19A9-4053-B40A-8910B52F2A34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,5 +60,9 @@ Global
 		{2F0EEBE1-4DD4-493D-B9D2-8F76433C02D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F0EEBE1-4DD4-493D-B9D2-8F76433C02D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F0EEBE1-4DD4-493D-B9D2-8F76433C02D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{669DDEFF-19A9-4053-B40A-8910B52F2A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{669DDEFF-19A9-4053-B40A-8910B52F2A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{669DDEFF-19A9-4053-B40A-8910B52F2A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{669DDEFF-19A9-4053-B40A-8910B52F2A34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

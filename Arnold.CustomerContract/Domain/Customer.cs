@@ -1,3 +1,5 @@
+using Arnold.CustomerContract.Events;
+
 namespace Arnold.SkyNet.Domain;
 
 public class Customer
@@ -56,5 +58,6 @@ public class Premium(decimal amount)
 public interface ICustomerRepository
 {
     Task<Customer> GetAsync(Guid id, CancellationToken cancellationToken);
+    Task<Customer?> GetAsync(string email, CancellationToken cancellationToken);
     Task SaveAsync(Customer customer, CancellationToken cancellationToken);
 }

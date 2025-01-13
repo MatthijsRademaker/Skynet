@@ -30,28 +30,49 @@ var premiumCalcProxy = builder.AddProject<Projects.Arnold_PremiumCalcProxy>("pre
 
 var serviceBus = builder.AddConnectionString("messaging");
 
-var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Session);
+var username = builder.AddParameter("username", "admin", secret: false);
+var password = builder.AddParameter("password", "MyVeryStrongPassword1234", secret: false);
 
-var skynetDb = postgres.AddDatabase("skynetDb");
+var postgres = builder
+    .AddPostgres("postgres", username, password)
+    .WithLifetime(ContainerLifetime.Session)
+    .WithPgAdmin(
+        (builder) =>
+        {
+            builder.WithHostPort(5050);
+        }
+    );
+
+var skynetDb = postgres.AddDatabase("skynetdb");
 
 builder
     .AddProject<Projects.Arnold_PaycheckProtector>("paycheckprotector")
     .WithReference(premiumCalcProxy)
     .WithReference(serviceBus)
-    .WithReference(skynetDb)
-    .WaitFor(serviceBusInstance);
+    .WaitFor(serviceBusInstance)
+    .WaitFor(postgres)
+    .WithReference(skynetDb);
 
 builder
     .AddProject<Projects.Arnold_PremiumWidget>("premiumwidget")
     .WithReference(premiumCalcProxy)
-    .WithReference(serviceBus)
-    .WaitFor(serviceBusInstance);
+    .WaitFor(serviceBusInstance)
+    .WaitFor(postgres)
+    .WithReference(serviceBus);
 
 builder
     .AddProject<Projects.Arnold_SkyNet>("skynet")
     .WithReference(serviceBus)
+    .WaitFor(serviceBusInstance)
+    .WaitFor(postgres)
+    .WithReference(skynetDb);
+
+builder
+    .AddProject<Projects.Arnold_KnowledgeTest>("knowledgetest")
+    .WithReference(serviceBus)
     .WithReference(skynetDb)
-    .WaitFor(serviceBusInstance);
+    .WaitFor(serviceBusInstance)
+    .WaitFor(postgres);
 
 // TODO add KnowledgeTest project
 

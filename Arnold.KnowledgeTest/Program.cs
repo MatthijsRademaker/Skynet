@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Arnold.CustomerContract;
 using Arnold.CustomerContract.Events;
-using Arnold.PaycheckProtector;
+using Arnold.KnowledgeTest;
 using Arnold.SkyNet.Domain;
 using Azure.Messaging.ServiceBus;
 
@@ -9,30 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
-builder.AddPaycheckProtector();
+builder.AddKnowledgeTest();
 
 var app = builder.Build();
-
-app.MapGet(
-    "/getPremium",
-    async (IHttpClientFactory clientFactory) =>
-    {
-        var client = clientFactory.CreateClient();
-        var response = await client.GetAsync("https+http://premiumcalcproxy/getPremium");
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        return content;
-    }
-);
-
-app.MapGet(
-    "/customer/{Id}",
-    async (ICustomerRepository repository, Guid Id) =>
-    {
-        var customer = await repository.GetAsync(Id, default);
-        return customer;
-    }
-);
 
 app.MapGet(
     "/customer/recreate/{Id}",
@@ -55,11 +34,13 @@ app.MapGet(
     }
 );
 
-// TODO create full blown service for this
 app.MapPost(
     "/apply",
+    // TODO add query params for failed test and customer id
+    // Then run test with recreating customer from PaycheckProtector and vice versa
     async (ServiceBusClient client) =>
     {
+        // TODO verify if new customer is already in the system
         var sender = client.CreateSender("customer");
         var command = new CreateCustomerCommand
         {
@@ -69,22 +50,15 @@ app.MapPost(
         };
 
         await sender.SendMessageAsync(command.ToServiceBusMessage());
-    }
-);
 
-app.MapPatch(
-    "/updateAddress/{Id}",
-    async (ServiceBusClient client, Guid Id) =>
-    {
-        var sender = client.CreateSender("customer");
-        var command = new UpdateAddressCommand()
+        var knowledgeTestCommand = new KnowledgeTestCommand
         {
-            Id = Id,
-            Address = "1234 Elm St",
+            Id = command.CustomerId,
+            Passed = true,
             Version = 1,
-        }; // TODO add more properties
+        };
 
-        await sender.SendMessageAsync(command.ToServiceBusMessage());
+        await sender.SendMessageAsync(knowledgeTestCommand.ToServiceBusMessage());
     }
 );
 

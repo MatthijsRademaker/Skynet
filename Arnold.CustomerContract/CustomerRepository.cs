@@ -12,6 +12,11 @@ namespace Arnold.SkyNet.Infrastructure
             return Task.FromResult(skyNetDbContext.Customers.Find(id));
         }
 
+        public Task<Customer?> GetAsync(string email, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(skyNetDbContext.Customers.FirstOrDefault(c => c.Email == email));
+        }
+
         public async Task SaveAsync(Customer customer, CancellationToken cancellationToken)
         {
             skyNetDbContext.Customers.Add(customer);

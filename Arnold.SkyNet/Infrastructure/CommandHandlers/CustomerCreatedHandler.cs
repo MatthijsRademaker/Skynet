@@ -1,4 +1,5 @@
 using Arnold.CustomerContract;
+using Arnold.CustomerContract.Events;
 using Arnold.SkyNet.Domain;
 using MediatR;
 
@@ -8,13 +9,17 @@ namespace Arnold.SkyNet.CommandHandlers
         : DomainEventCommand
     // TODO maybe implement an interface such that i can create a generic event handler
     {
-        public CreateCustomerCommand CreateCustomerCommand { get; } = createCustomerCommand;
+        public string Name => createCustomerCommand.Name;
+
+        public string Email => createCustomerCommand.Email;
+
+        public Guid AggregateId => createCustomerCommand.CustomerId;
 
         public override IDomainEvent @event =>
             new CustomerCreatedEvent(
-                Guid.NewGuid(),
-                CreateCustomerCommand.Name,
-                CreateCustomerCommand.Email
+                AggregateId,
+                createCustomerCommand.Name,
+                createCustomerCommand.Email
             );
     }
 
@@ -41,16 +46,18 @@ namespace Arnold.SkyNet.CommandHandlers
     ) : INotificationHandler<CreateCustomerCommandRequest>
     {
         public async Task Handle(
-            CreateCustomerCommandRequest request,
+            CreateCustomerCommandRequest command,
             CancellationToken cancellationToken
         )
         {
             logger.LogInformation("Handling {CommandName} command", nameof(CreateCustomerCommand));
-            var customer = new Customer(
-                request.@event.AggregateId,
-                request.CreateCustomerCommand.Name,
-                request.CreateCustomerCommand.Email
+            logger.LogInformation(
+                "Creating customer {Name} with email {Email} and {Id}",
+                command.Name,
+                command.Email,
+                command.AggregateId
             );
+            var customer = new Customer(command.AggregateId, command.Name, command.Email);
             await customerRepository.SaveAsync(customer, cancellationToken);
         }
     }

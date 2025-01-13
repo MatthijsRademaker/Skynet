@@ -33,8 +33,15 @@ public abstract class BaseCommand
 
 public class CreateCustomerCommand : BaseCommand
 {
+    public Guid CustomerId { get; init; } = Guid.NewGuid();
     public required string Name { get; set; }
     public required string Email { get; set; }
+}
+
+public class KnowledgeTestCommand : BaseCommand
+{
+    public required Guid Id { get; set; }
+    public required bool Passed { get; set; }
 }
 
 public class UpdateAddressCommand : BaseCommand

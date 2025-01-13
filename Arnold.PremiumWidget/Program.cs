@@ -24,18 +24,21 @@ app.MapGet(
 
 app.MapPost(
     "/callMeBack",
-    async (ServiceBusClient client) =>
+    async (ServiceBusClient client, string name) =>
     {
         var sender = client.CreateSender("customer");
 
+        // TODO verify if this is actually a new customer
         var command = new CreateCustomerCommand
         {
-            Name = "Arnold",
-            Email = "arnold@terminator.com",
+            Name = name,
+            Email = $"{name}@terminator.com",
             Version = 1,
         };
 
         await sender.SendMessageAsync(command.ToServiceBusMessage());
+
+        return command.CustomerId;
     }
 );
 
