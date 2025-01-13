@@ -40,12 +40,20 @@ public class Worker : BackgroundService
 
                 case nameof(UpdateAddressCommand):
                     await mediator.Publish(
-                        // TODO wrap in a request
+                        // TODO wrap in a request and implement handler
                         args.Message.ToCommand<UpdateAddressCommand>(),
                         args.CancellationToken
                     );
                     break;
-
+                case nameof(KnowledgeTestCommand):
+                    await mediator.Publish(
+                        // TODO wrap in a request
+                        new KnowledgeTestCommandRequest(
+                            args.Message.ToCommand<KnowledgeTestCommand>()
+                        ),
+                        args.CancellationToken
+                    );
+                    break;
                 default:
                     logger.LogWarning(
                         "Unknown message type: {MessageType}",

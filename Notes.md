@@ -1,3 +1,6 @@
-How to use Mediatr to the fullest. - can i fire command as notification which then has multiple handlers - creating a domain event. - updating the entity - updating the materialized view
+possible scenarios with event sourcing
 
-How to use event sourcing for audit trail purposes
+1. Knowledge test result can be injected in paycheck protector
+2. When the knowledge test fails in the pay check protecter you can link to the questions only and send a request afterwards to the contract mapper?
+3. Premium is dynamic
+4. Save for later

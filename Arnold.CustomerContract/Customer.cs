@@ -20,6 +20,7 @@ public static class CommandsExtenstions
     }
 
     public static T ToCommand<T>(this ServiceBusReceivedMessage message)
+        where T : BaseCommand
     {
         var json = message.Body.ToString();
         return JsonSerializer.Deserialize<T>(json);
@@ -40,7 +41,7 @@ public class CreateCustomerCommand : BaseCommand
 
 public class KnowledgeTestCommand : BaseCommand
 {
-    public required Guid Id { get; set; }
+    public required Guid CustomerId { get; set; }
     public required bool Passed { get; set; }
 }
 

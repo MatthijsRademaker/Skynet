@@ -7,6 +7,7 @@ public class Customer
     public Guid? Id { get; }
     public string? Name { get; }
     public string? Email { get; }
+    public bool KnowledgeTestPassed { get; private set; }
 
     // TODO sorted set?
     public List<Premium> PremiumAmounts { get; private set; }
@@ -43,10 +44,18 @@ public class Customer
                 case PremiumCalculatedEvent premiumCalculatedEvent:
                     customer.AddPremium(premiumCalculatedEvent.Amount);
                     break;
+                case KnowledgeTestUpdatedEvent knowledgeTestUpdatedEvent:
+                    customer.UpdateKnowledgeTest(knowledgeTestUpdatedEvent.Passed);
+                    break;
             }
         }
 
         return customer;
+    }
+
+    public void UpdateKnowledgeTest(bool passed)
+    {
+        KnowledgeTestPassed = passed;
     }
 }
 

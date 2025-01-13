@@ -1,0 +1,18 @@
+meta {
+  name: apply
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{KnowledgeTestUrl}}/apply
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "arnold3",
+    "passed": true
+  }
+}

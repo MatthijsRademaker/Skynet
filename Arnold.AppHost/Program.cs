@@ -74,6 +74,4 @@ builder
     .WaitFor(serviceBusInstance)
     .WaitFor(postgres);
 
-// TODO add KnowledgeTest project
-
 builder.Build().Run();

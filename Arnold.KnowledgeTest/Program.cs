@@ -38,14 +38,14 @@ app.MapPost(
     "/apply",
     // TODO add query params for failed test and customer id
     // Then run test with recreating customer from PaycheckProtector and vice versa
-    async (ServiceBusClient client) =>
+    async (ServiceBusClient client, KnowledgeTestResult result) =>
     {
         // TODO verify if new customer is already in the system
         var sender = client.CreateSender("customer");
         var command = new CreateCustomerCommand
         {
-            Name = "Arnold",
-            Email = "arnold@terminator.com",
+            Name = result.Name,
+            Email = $"{result.Name}@terminator.com",
             Version = 1,
         };
 
@@ -53,12 +53,14 @@ app.MapPost(
 
         var knowledgeTestCommand = new KnowledgeTestCommand
         {
-            Id = command.CustomerId,
-            Passed = true,
+            CustomerId = command.CustomerId,
+            Passed = result.Passed,
             Version = 1,
         };
 
         await sender.SendMessageAsync(knowledgeTestCommand.ToServiceBusMessage());
+
+        return command.CustomerId;
     }
 );
 

@@ -3,6 +3,7 @@ using Arnold.CustomerContract.Events;
 using Arnold.SkyNet.Domain;
 using Arnold.SkyNet.DomainEvents;
 using Arnold.SkyNet.Infrastructure;
+using Arnold.SkyNet.Migrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Arnold.SkyNet;
@@ -29,6 +30,7 @@ public static class DependencyInjection
 
         builder.AddAzureServiceBusClient("messaging");
         builder.Services.AddHostedService<Worker>();
+        builder.Services.AddHostedService<DatabaseMigrationService>();
         builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
         builder.Services.AddScoped<IEventStore, EventStore>();
     }
