@@ -47,7 +47,6 @@ public class Worker : BackgroundService
                     break;
                 case nameof(KnowledgeTestCommand):
                     await mediator.Publish(
-                        // TODO wrap in a request
                         new KnowledgeTestCommandRequest(
                             args.Message.ToCommand<KnowledgeTestCommand>()
                         ),

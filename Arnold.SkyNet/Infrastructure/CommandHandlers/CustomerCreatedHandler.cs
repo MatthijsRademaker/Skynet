@@ -40,7 +40,11 @@ namespace Arnold.SkyNet.CommandHandlers
                 command.Email,
                 command.AggregateId
             );
-            var customer = new Customer(command.AggregateId, command.Name, command.Email);
+            var customer = Customer.CreateCustomer(
+                command.AggregateId,
+                command.Name,
+                command.Email
+            );
             await customerRepository.SaveAsync(customer, cancellationToken);
         }
     }

@@ -13,6 +13,8 @@ class CustomerTypeConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.HasKey(ci => ci.Id);
 
+        builder.Property(ci => ci.KnowledgeTestPassed).HasDefaultValue(false);
+
         builder.Property(ci => ci.Name).HasMaxLength(50);
 
         builder.HasIndex(ci => ci.Email).IsUnique();

@@ -4,22 +4,25 @@ namespace Arnold.SkyNet.Domain;
 
 public class Customer
 {
-    public Guid? Id { get; }
-    public string? Name { get; }
-    public string? Email { get; }
-    public bool KnowledgeTestPassed { get; private set; }
+    public Guid? Id { get; set; }
+    public string? Name { get; set; }
+    public string? Email { get; set; }
+
+    // TODO private set -> create DTO for dbcontext
+    public bool KnowledgeTestPassed { get; set; }
 
     // TODO sorted set?
-    public List<Premium> PremiumAmounts { get; private set; }
+    public List<Premium> PremiumAmounts { get; set; }
 
-    public Customer(Guid id, string name, string email)
+    public static Customer CreateCustomer(Guid id, string name, string email)
     {
-        Id = id;
-        Name = name;
-        Email = email;
+        return new Customer()
+        {
+            Id = id,
+            Name = name,
+            Email = email,
+        };
     }
-
-    private Customer() { }
 
     public void AddPremium(decimal amount)
     {
@@ -35,7 +38,7 @@ public class Customer
             switch (@event)
             {
                 case CustomerCreatedEvent customerCreatedEvent:
-                    customer = new Customer(
+                    customer = CreateCustomer(
                         customerCreatedEvent.AggregateId,
                         customerCreatedEvent.Name,
                         customerCreatedEvent.Email

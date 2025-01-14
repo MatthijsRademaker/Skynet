@@ -74,6 +74,8 @@ public class EventStore(ILogger<EventStore> logger, SkyNetContext context) : IEv
                         e.Data,
                         options
                     ),
+                    nameof(KnowledgeTestUpdatedEvent) =>
+                        DeserializeEvent<KnowledgeTestUpdatedEvent>(e.Data, options),
                     _ => throw new InvalidOperationException($"Unknown event type: {e.Type}"),
                 }
             )

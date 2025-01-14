@@ -73,16 +73,16 @@ app.MapPost(
 );
 
 app.MapPatch(
-    "/updateAddress/{Id}",
-    async (ServiceBusClient client, Guid Id) =>
+    "/updateKnowledgeTest/{Id}",
+    async (ServiceBusClient client, Guid Id, bool passed) =>
     {
         var sender = client.CreateSender("customer");
-        var command = new UpdateAddressCommand()
+        var command = new KnowledgeTestCommand
         {
-            Id = Id,
-            Address = "1234 Elm St",
+            CustomerId = Id,
+            Passed = passed,
             Version = 1,
-        }; // TODO add more properties
+        };
 
         await sender.SendMessageAsync(command.ToServiceBusMessage());
     }

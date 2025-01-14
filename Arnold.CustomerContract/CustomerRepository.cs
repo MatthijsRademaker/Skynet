@@ -19,7 +19,19 @@ namespace Arnold.SkyNet.Infrastructure
 
         public async Task SaveAsync(Customer customer, CancellationToken cancellationToken)
         {
-            skyNetDbContext.Customers.Add(customer);
+            var existingCustomer = skyNetDbContext.Customers.FirstOrDefault(c =>
+                c.Id == customer.Id
+            );
+
+            if (existingCustomer is not null)
+            {
+                skyNetDbContext.Update(customer);
+            }
+            else
+            {
+                skyNetDbContext.Customers.Add(customer);
+            }
+
             await skyNetDbContext.SaveChangesAsync(cancellationToken);
         }
     }
