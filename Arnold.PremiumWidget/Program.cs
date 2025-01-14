@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Arnold.CustomerContract;
+using Arnold.SkyNet.Domain;
 using Azure.Messaging.ServiceBus;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,7 @@ app.MapGet(
 
 app.MapPost(
     "/callMeBack",
-    async (ServiceBusClient client, string name) =>
+    async (ServiceBusClient client, string name, decimal premium) =>
     {
         var sender = client.CreateSender("customer");
 
@@ -37,6 +38,16 @@ app.MapPost(
         };
 
         await sender.SendMessageAsync(command.ToServiceBusMessage());
+
+        // mock get premium
+        await sender.SendMessageAsync(
+            new PremiumCalculatedCommand()
+            {
+                Id = command.CustomerId,
+                Premium = new Premium(premium),
+                Version = 1,
+            }.ToServiceBusMessage()
+        );
 
         return command.CustomerId;
     }

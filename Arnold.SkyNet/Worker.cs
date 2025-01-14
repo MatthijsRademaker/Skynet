@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Arnold.CustomerContract;
 using Arnold.SkyNet.CommandHandlers;
+using Arnold.SkyNet.Domain;
 using Azure.Messaging.ServiceBus;
 using MediatR;
 
@@ -33,6 +34,14 @@ public class Worker : BackgroundService
                     await mediator.Publish(
                         new CreateCustomerCommandRequest(
                             args.Message.ToCommand<CreateCustomerCommand>()
+                        ),
+                        args.CancellationToken
+                    );
+                    break;
+                case nameof(PremiumCalculatedCommand):
+                    await mediator.Publish(
+                        new PremiumCalculatedCommandNotification(
+                            args.Message.ToCommand<PremiumCalculatedCommand>()
                         ),
                         args.CancellationToken
                     );

@@ -15,13 +15,17 @@ var app = builder.Build();
 
 app.MapGet(
     "/getPremium",
-    async (IHttpClientFactory clientFactory) =>
+    async (
+        IPremiumCalculator premiumCalculator,
+        ICustomerRepository customerRepository,
+        string customerId
+    ) =>
     {
-        var client = clientFactory.CreateClient();
-        var response = await client.GetAsync("https+http://premiumcalcproxy/getPremium");
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        return content;
+        var premium = await premiumCalculator.CalculatePremiumAsync(
+            Guid.Parse(customerId),
+            default
+        );
+        return premium;
     }
 );
 
@@ -36,12 +40,12 @@ app.MapGet(
 
 app.MapGet(
     "/customer/recreate/{Id}",
-    async (IEventStore repository, ILogger<IEventStore> logger, Guid Id) =>
+    // TODO DI
+    async (CustomerFactory factory, ILogger<IEventStore> logger, Guid Id) =>
     {
-        // TODO create replay logic for events
         logger.LogInformation("Getting events for {Id}", Id);
-        var events = await repository.GetEvents(Id, default);
-        var customer = Customer.RecreateCustomer(events);
+        var customer = await factory.RecreateCustomer(Id, default);
+        // TODO return DTO with logic if premium changed
         return customer;
     }
 );

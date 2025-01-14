@@ -1,4 +1,5 @@
 using Arnold.CustomerContract.Events;
+using Microsoft.Extensions.Logging;
 
 namespace Arnold.SkyNet.Domain;
 
@@ -29,33 +30,6 @@ public class Customer
         PremiumAmounts.Add(new Premium(amount));
     }
 
-    // TODO move to separate class
-    public static Customer RecreateCustomer(IReadOnlyList<IDomainEvent> events)
-    {
-        var customer = new Customer();
-        foreach (var @event in events)
-        {
-            switch (@event)
-            {
-                case CustomerCreatedEvent customerCreatedEvent:
-                    customer = CreateCustomer(
-                        customerCreatedEvent.AggregateId,
-                        customerCreatedEvent.Name,
-                        customerCreatedEvent.Email
-                    );
-                    break;
-                case PremiumCalculatedEvent premiumCalculatedEvent:
-                    customer.AddPremium(premiumCalculatedEvent.Amount);
-                    break;
-                case KnowledgeTestUpdatedEvent knowledgeTestUpdatedEvent:
-                    customer.UpdateKnowledgeTest(knowledgeTestUpdatedEvent.Passed);
-                    break;
-            }
-        }
-
-        return customer;
-    }
-
     public void UpdateKnowledgeTest(bool passed)
     {
         KnowledgeTestPassed = passed;
@@ -72,4 +46,66 @@ public interface ICustomerRepository
     Task<Customer> GetAsync(Guid id, CancellationToken cancellationToken);
     Task<Customer?> GetAsync(string email, CancellationToken cancellationToken);
     Task SaveAsync(Customer customer, CancellationToken cancellationToken);
+}
+
+public interface IPremiumCalculator
+{
+    // TODO should this be in the domain? Other services might not need to do this
+    Task<Premium?> CalculatePremiumAsync(Guid customerId, CancellationToken cancellationToken);
+}
+
+public class CustomerFactory(
+    ILogger<CustomerFactory> logger,
+    IEventStore eventStore,
+    IPremiumCalculator premiumCalculator
+)
+{
+    public async Task<Customer> RecreateCustomer(
+        Guid customerId,
+        CancellationToken cancellationToken
+    )
+    {
+        var events = await eventStore.GetEvents(customerId, cancellationToken);
+
+        logger.LogInformation("Recreating customer {customerId} with {events}", customerId, events);
+        // TODO create a find for customer created event and guerantee it exists
+        var createdEvent = events.OfType<CustomerCreatedEvent>().First();
+        var customer = Customer.CreateCustomer(
+            createdEvent.AggregateId,
+            createdEvent.Name,
+            createdEvent.Email
+        );
+
+        logger.LogInformation("Recreating customer {customerId} with {events}", customerId, events);
+        var remainingEvents = events.Where(e =>
+            e.GetType() == typeof(CustomerCreatedEvent) && (CustomerCreatedEvent)e != createdEvent
+        );
+        logger.LogInformation("remainging events {events}", events);
+
+        foreach (var @event in remainingEvents)
+        {
+            switch (@event)
+            {
+                case PremiumCalculatedEvent premiumCalculatedEvent:
+                    logger.LogInformation(
+                        "Adding premium {amount} to customer {customerId}",
+                        premiumCalculatedEvent.Amount,
+                        customerId
+                    );
+                    customer.AddPremium(premiumCalculatedEvent.Amount);
+                    var premium = await premiumCalculator.CalculatePremiumAsync(
+                        customer.Id.Value,
+                        cancellationToken
+                    );
+
+                    customer.AddPremium(premium.Amount);
+                    break;
+                case KnowledgeTestUpdatedEvent knowledgeTestUpdatedEvent:
+                    customer.UpdateKnowledgeTest(knowledgeTestUpdatedEvent.Passed);
+                    break;
+            }
+        }
+
+        return customer;
+    }
 }

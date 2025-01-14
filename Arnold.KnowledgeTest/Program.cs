@@ -15,12 +15,11 @@ var app = builder.Build();
 
 app.MapGet(
     "/customer/recreate/{Id}",
-    async (IEventStore repository, ILogger<IEventStore> logger, Guid Id) =>
+    async (CustomerFactory factory, ILogger<IEventStore> logger, Guid Id) =>
     {
         // TODO create replay logic for events
         logger.LogInformation("Getting events for {Id}", Id);
-        var events = await repository.GetEvents(Id, default);
-        var customer = Customer.RecreateCustomer(events);
+        var customer = await factory.RecreateCustomer(Id, default);
         return customer;
     }
 );

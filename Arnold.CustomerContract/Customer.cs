@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using Arnold.SkyNet.Domain;
 using Azure.Messaging.ServiceBus;
 
 namespace Arnold.CustomerContract;
@@ -43,6 +44,12 @@ public class KnowledgeTestCommand : BaseCommand
 {
     public required Guid CustomerId { get; set; }
     public required bool Passed { get; set; }
+}
+
+public class PremiumCalculatedCommand : BaseCommand
+{
+    public required Guid Id { get; set; }
+    public required Premium Premium { get; set; }
 }
 
 public class UpdateAddressCommand : BaseCommand

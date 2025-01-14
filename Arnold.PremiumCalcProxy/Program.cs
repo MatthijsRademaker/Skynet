@@ -8,7 +8,7 @@ builder.AddServiceDefaults();
 
 var app = builder.Build();
 
-app.MapGet("/getPremium", () => new { Amount = 1000m });
+app.MapGet("/getPremium", () => new { Amount = Random.Shared.Next(100, 1000) });
 
 if (!app.Environment.IsDevelopment())
 {

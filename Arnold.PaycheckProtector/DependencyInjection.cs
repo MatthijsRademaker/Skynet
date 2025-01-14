@@ -25,5 +25,7 @@ public static class DependencyInjection
         builder.AddAzureServiceBusClient("messaging");
         builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
         builder.Services.AddScoped<IEventStore, EventStore>();
+        builder.Services.AddScoped<CustomerFactory>();
+        builder.Services.AddScoped<IPremiumCalculator, PremiumCalculator>();
     }
 }
